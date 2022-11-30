@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.example.sample.service.mber.impl.MberMapper">
+
+    <!-- Mber -->
+    <resultMap id="mber" type="mberVO">
+		<result property="mberSn" column="mber_sn"/>
+		<result property="eEmpId" column="e_emp_id"/>
+		<result property="mberNm" column="mber_nm"/>
+		<result property="sexdstn" column="sexdstn"/>
+		<result property="telno" column="telno"/>
+		<result property="brthdy" column="brthdy"/>
+		<result property="registId" column="regist_id"/>
+		<result property="registDt" column="regist_dt"/>
+		<result property="updtId" column="updt_id"/>
+		<result property="updtDt" column="updt_dt"/>
+	</resultMap>
+
+    <select id="selectMber" parameterType="mberVO" resultMap="mber">
+
+			select MBER_SN,
+		       E_EMP_ID,
+		       MBER_NM,
+		       SEXDSTN,
+		       TELNO,
+		       BRTHDY,
+		       REGIST_ID,
+		       REGIST_DT,
+		       UPDT_ID,
+		       UPDT_DT,(
+		       	select EMP_NM
+		       	from t_emp_m b
+		       	where 1=1
+		       	and b.EMP_ID = t_mber_m.E_EMP_ID
+		       ) AS empNm
+		  	from t_mber_m
+			where MBER_SN =${mberSn}
+
+	</select>
+
+	<select id="selectMberList" parameterType="mberVO" resultType="egovMap">
+
+			select a.MBER_SN,
+		       a.E_EMP_ID,
+		       a.MBER_NM,
+		       a.SEXDSTN,
+		       a.TELNO,
+		       a.BRTHDY,
+		       a.REGIST_ID,
+		       a.REGIST_DT,
+		       a.UPDT_ID,
+		       a.UPDT_DT,
+		       (
+		       select EMP_NM
+		       from t_emp_m b
+		       WHERE 1=1
+		       AND b.EMP_ID = a.E_EMP_ID
+		       )
+		       AS empNm
+		  from t_mber_m a
+		  <if test="searchKeyword != null and searchKeyword != ''">
+				WHERE MBER_NM LIKE CONCAT('%', #{searchKeyword},'%')
+			</if>
+		  ORDER BY REGIST_DT ASC
+          LIMIT #{recordCountPerPage} OFFSET #{firstIndex}
+		  <!-- t_mber_m 테이블을 인식하고, 해당 코드에선 a라는 별칭을 부여하였다. -->
+
+	</select>
+
+	<select id="selectMberListTotCnt" parameterType="mberVO" resultType="int">
+
+			SELECT COUNT(*) totcnt
+			FROM t_mber_m
+			WHERE 1=1
+			<if test="searchKeyword != null and searchKeyword != ''">
+				AND MBER_NM LIKE CONCAT('%', #{searchKeyword},'%')
+			</if>
+
+			<!-- <if test="searchKeyword != null and searchKeyword != ''">
+		        <choose>
+		            <when test="searchCondition == 0">
+						AND ID LIKE '%' || #{searchKeyword} || '%'
+					</when>
+		            <when test="searchCondition == 1">
+						AND	NAME LIKE '%' || #{searchKeyword} || '%'
+					</when>
+				</choose>
+			</if> -->
+	</select>
+
+
+	<insert id="insertMber" parameterType="mberVO">
+	     <selectKey keyProperty="mberSn" resultType="string" order="BEFORE">
+	        select NEXTVAL(mber_seq) from dual
+		    </selectKey>
+			insert into t_mber_m (
+			mber_sn, e_emp_id, mber_nm, sexdstn, telno, brthdy, regist_id, regist_dt,
+			updt_id, updt_dt)
+			values (
+		<!-- 	(select NEXTVAL(mber_seq)), -->
+		   #{mberSn},
+			#{eEmpId},
+			#{mberNm},
+			#{sexdstn},
+			#{telno},
+			#{brthdy},
+			#{registId},
+			CURDATE(),
+			#{registId},
+			CURDATE()
+			)
+	</insert>
+
+	<delete id="deleteMber">
+	    delete from t_mber_m
+	    where MBER_SN =${mberSn}
+	</delete>
+
+	<update id="updateMber">
+	    update t_mber_m
+	    set E_EMP_ID=#{eEmpId},
+	    	MBER_NM=#{mberNm},
+	    	SEXDSTN=#{sexdstn},
+	    	TELNO=#{telno},
+		    BRTHDY=#{brthdy},
+		    UPDT_ID=#{updtId},
+		    UPDT_DT=CURDATE()
+		    where MBER_SN=${mberSn}
+	</update>
+
+	<select id="selectListMberNM" resultMap="mber">
+		SELECT MBER_SN, MBER_NM, TELNO
+		FROM t_mber_m
+		WHERE 1=1
+	</select>
+
+
+</mapper>
