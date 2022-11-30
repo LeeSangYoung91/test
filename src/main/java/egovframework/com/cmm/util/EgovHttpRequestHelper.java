@@ -26,6 +26,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  */
 public class EgovHttpRequestHelper {
 	
+	
 	public static boolean isInHttpRequest() {
 		try {
 			getCurrentRequest();
